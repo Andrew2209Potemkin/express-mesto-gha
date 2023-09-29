@@ -4,10 +4,9 @@ module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(404).send({ message: 'Запрашиваемые пользователи не найдены' });
+      if (err) {
+        res.status(404).send({ message: 'Запрашиваемые пользователи не найдены' });
       }
-      return null;
     });
 };
 
@@ -15,10 +14,9 @@ module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      if (err) {
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
-      return null;
     });
 };
 
@@ -27,10 +25,9 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      return null;
     });
 };
 
@@ -43,10 +40,9 @@ module.exports.updateProfile = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      return null;
     });
 };
 
@@ -59,9 +55,8 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      return null;
     });
 };

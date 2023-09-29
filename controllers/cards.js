@@ -4,10 +4,9 @@ module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(404).send({ message: 'Запрашиваемые карточки не найдены' });
+      if (err) {
+        res.status(404).send({ message: 'Запрашиваемые карточки не найдены' });
       }
-      return null;
     });
 };
 
@@ -17,10 +16,9 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      return null;
     });
 };
 
