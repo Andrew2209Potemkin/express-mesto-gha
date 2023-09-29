@@ -46,6 +46,7 @@ module.exports.updateProfile = (req, res) => {
     { name, about },
     { new: true },
   )
+    .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' }))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -62,6 +63,7 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     { new: true },
   )
+    .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' }))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
