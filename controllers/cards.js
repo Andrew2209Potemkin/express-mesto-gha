@@ -27,8 +27,11 @@ module.exports.deleteCard = (req, res) => {
   Card.findById(req.params.cardId)
     .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' }))
     .then((card) => {
-      card.remove();
-      res.send({ message: 'Карточка удалена' });
+      if (card) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((myCard) => res.send(myCard))
+          .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+      }
     })
     .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
 };
