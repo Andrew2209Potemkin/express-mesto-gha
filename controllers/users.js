@@ -44,7 +44,10 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   )
     .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' }))
     .then((user) => res.send(user))
