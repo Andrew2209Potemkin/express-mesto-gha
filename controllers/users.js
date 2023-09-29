@@ -1,22 +1,28 @@
 const User = require('../models/user');
 
+const ERROR_CODE_VALIDATION = 400;
+
+const ERROR_CODE_NOT_FOUND = 404;
+
+// const ERROR_CODE_SERVER = 500;
+
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      if (err) {
-        res.status(404).send({ message: 'Запрашиваемые пользователи не найдены' });
-      }
-    });
+    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
 };
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err) {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      if (err.message === 'NotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -25,9 +31,10 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -40,9 +47,10 @@ module.exports.updateProfile = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -55,8 +63,9 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };

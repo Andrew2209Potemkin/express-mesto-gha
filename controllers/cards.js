@@ -1,13 +1,13 @@
 const Card = require('../models/card');
 
+const ERROR_CODE_VALIDATION = 400;
+
+const ERROR_CODE_NOT_FOUND = 404;
+
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err) {
-        res.status(404).send({ message: 'Запрашиваемые карточки не найдены' });
-      }
-    });
+    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
 };
 
 module.exports.createCard = (req, res) => {
@@ -16,9 +16,10 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -38,7 +39,15 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      }
+      if (err.message === 'NotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
+      }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -48,5 +57,13 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      }
+      if (err.message === 'NotFound') {
+        res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
+      }
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+    });
 };
