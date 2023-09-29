@@ -33,7 +33,11 @@ module.exports.deleteCard = (req, res) => {
           .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
       }
     })
-    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => {
