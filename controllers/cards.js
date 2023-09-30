@@ -4,21 +4,29 @@ const ERROR_CODE_VALIDATION = 400;
 
 const ERROR_CODE_NOT_FOUND = 404;
 
+const ERROR_CODE_SERVER = 500;
+
+const STATUS_CODE_OBJECT_CREATED = 201;
+
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+    .catch((err) => {
+      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+    });
 };
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
+    .then((card) => res.status(STATUS_CODE_OBJECT_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
       console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
@@ -37,6 +45,7 @@ module.exports.deleteCard = (req, res) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
       }
+      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
       console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
@@ -56,6 +65,7 @@ module.exports.likeCard = (req, res) => {
       if (err.message === 'NotFound') {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
       }
+      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
       console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
@@ -75,6 +85,7 @@ module.exports.dislikeCard = (req, res) => {
       if (err.message === 'NotFound') {
         res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
       }
+      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
       console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
