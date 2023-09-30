@@ -25,9 +25,10 @@ module.exports.createCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -44,9 +45,10 @@ module.exports.deleteCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -61,12 +63,10 @@ module.exports.likeCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      if (err.message === 'NotFound') {
-        res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
-      }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -81,11 +81,9 @@ module.exports.dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      if (err.message === 'NotFound') {
-        res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' });
-      }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };

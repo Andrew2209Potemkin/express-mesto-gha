@@ -24,9 +24,10 @@ module.exports.getUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -37,9 +38,10 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -58,9 +60,10 @@ module.exports.updateProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
 
@@ -79,8 +82,9 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
+        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
       }
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
