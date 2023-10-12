@@ -1,89 +1,73 @@
 const Card = require('../models/card');
-
-const ERROR_CODE_VALIDATION = 400;
-
-const ERROR_CODE_NOT_FOUND = 404;
-
-const ERROR_CODE_SERVER = 500;
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const STATUS_CODE_OBJECT_CREATED = 201;
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
-    });
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.status(STATUS_CODE_OBJECT_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
-      }
-    });
-};
-
-module.exports.deleteCard = (req, res) => {
-  Card.findById(req.params.cardId)
-    .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' }))
-    .then((card) => {
-      if (card) {
-        Card.findByIdAndRemove(req.params.cardId)
-          .then((myCard) => res.send(myCard))
-          .catch((err) => console.log(`Произошла ошибка: ${err.name} ${err.message}`));
+        throw new ValidationError('Переданы некорректные данные');
       }
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
-      }
-    });
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
+    .orFail(() => { throw new NotFoundError('_id карточки не найден'); })
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((myCard) => res.send(myCard));
+      } else {
+        throw new ForbiddenError('Удаление чужой карточки невозможно');
+      }
+    })
+    .catch(next);
+};
+
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' }))
+    .orFail(() => { throw new NotFoundError('_id карточки не найден'); })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+        next(err);
       }
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => res.status(ERROR_CODE_NOT_FOUND).send({ message: '_id карточки не найден' }))
+    .orFail(() => { throw new NotFoundError('_id карточки не найден'); })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'На сервере произошла ошибка' });
-        console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+        next(err);
       }
     });
 };
