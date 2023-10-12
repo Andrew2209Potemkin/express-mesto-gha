@@ -8,7 +8,9 @@ const STATUS_CODE_OBJECT_CREATED = 201;
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -18,10 +20,10 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(STATUS_CODE_OBJECT_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError('Переданы некорректные данные');
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {

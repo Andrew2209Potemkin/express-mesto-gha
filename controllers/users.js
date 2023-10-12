@@ -10,7 +10,9 @@ const STATUS_CODE_OBJECT_CREATED = 201;
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.getUser = (req, res, next) => {
@@ -19,10 +21,9 @@ module.exports.getUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
-      } else {
-        next(err);
+        return next(new ValidationError('Переданы некорректные данные'));
       }
+      return next(err);
     });
 };
 
@@ -45,12 +46,13 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => res.status(STATUS_CODE_OBJECT_CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError('Переданы некорректные данные');
-      } else if (err.code === 11000) {
-        throw new ConflictError('Пользователь с таким именем уже существует');
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-    })
-    .catch(next);
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким именем уже существует'));
+      }
+      return next(err);
+    });
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -67,10 +69,10 @@ module.exports.updateProfile = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError('Переданы некорректные данные');
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -87,10 +89,10 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError('Переданы некорректные данные');
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
@@ -110,8 +112,8 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new ValidationError('Переданы некорректные данные');
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
