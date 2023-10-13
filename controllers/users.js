@@ -106,19 +106,17 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
-    .then(({ _id: userId }) => {
-      const token = jwt.sign({ userId }, 'some-secret-key', { expiresIn: '7d' });
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       return res.send({ token });
     })
-    .catch(() => {
-      next(new AuthError('Неправильные почта или пароль'));
-    });
+    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user.userId)
+  User.findById(req.user._id)
     .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
-    .then((user) => res.send({ user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Переданы некорректные данные'));
