@@ -113,7 +113,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.user.userId)
     .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => res.send({ user }))
     .catch((err) => {
