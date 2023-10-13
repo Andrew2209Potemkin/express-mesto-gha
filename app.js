@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { validationLogin, validationCreateUser } = require('./middlewares/validationData');
-const limiter = require('./middlewares/rateLimiters');
+
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -19,7 +19,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(helmet());
 app.use(express.json());
-app.use(limiter);
 app.post('/signin', validationLogin, login);
 app.post('/signup', validationCreateUser, createUser);
 app.use(auth);
