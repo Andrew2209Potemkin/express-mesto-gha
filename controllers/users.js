@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const ConflictError = require('../errors/ConflictError');
+const AuthError = require('../errors/AuthError');
 
 const STATUS_CODE_OBJECT_CREATED = 201;
 
@@ -105,11 +106,13 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ token });
+    .then(({ _id: userId }) => {
+      const token = jwt.sign({ userId }, 'some-secret-key', { expiresIn: '7d' });
+      return res.send({ token });
     })
-    .catch(next);
+    .catch(() => {
+      next(new AuthError('Неправильные почта или пароль'));
+    });
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
